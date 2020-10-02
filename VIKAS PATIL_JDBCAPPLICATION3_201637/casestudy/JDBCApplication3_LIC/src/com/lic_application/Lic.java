@@ -4,9 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Lic {
@@ -14,7 +11,7 @@ public class Lic {
 	static Scanner scan=new Scanner(System.in);
 	
 	//JDBC driver name and driver url.
-	static final String Driver="com.mysql.jdbc.Driver";
+	static final String Driver="com.mysql.cj.jdbc.Driver";
 	static final String Url="jdbc:mysql://localhost:3306/trdb";
 	
 	//Database user name and password.
@@ -24,6 +21,7 @@ public class Lic {
 	//Establishing the connection and statement.
 	static Connection con=null;
 	static PreparedStatement pst=null;
+	
 	//Insert operation method.
 	public static int Insert()
 	{
@@ -66,12 +64,16 @@ public class Lic {
 			pst.setFloat(4, Premiumamount);
 			pst.setString(5, Preimiumtype);
 			
-			//updating the operation.
+			//Updating the operation.
 			rowInsert=pst.executeUpdate();
+			
+			//Condition statement to check insertion is done or not.  
 			if(rowInsert>0)
 			{
 				System.out.println("Data inserted sucessfully...");
 			}
+			
+			//"If" statement is not executed means, else will execute.
 			else
 				
 			{
@@ -89,13 +91,11 @@ public class Lic {
 		}
 		return rowInsert;
 	}
-	
-	//Method for fetching the data.
+	//Method for fetching the details.
 	public static void Fetch()
 	{
-		//Using policynumber fetching the data from database.
+		//adding policynumber to fetch the data.
 		int Policynumber;
-		//Exception handeler.
 		try {
 			Class.forName(Driver);
 			con=DriverManager.getConnection(Url,USER,PASS);
@@ -109,7 +109,6 @@ public class Lic {
 			//setting the value to column.
 			pst.setInt(1, Policynumber);
 			ResultSet rs=pst.executeQuery();
-			//Using while fetching data.
 			while(rs.next())
 			{
 				//Retrieve by column name.
@@ -119,24 +118,23 @@ public class Lic {
 				String sdate=rs.getString(4);
 				float amount=rs.getFloat(5);
 				String ptype=rs.getString(6);
+				
 				//Display by name.
 				System.out.println("Booking details..");
 				System.out.println("Policy number: "+policyno);
 				System.out.println("Policy name: "+pname+"\nPolicy holder name is : "+phname);
 				System.out.println("Policy Start date is: "+sdate );
 				System.out.println("Policy Type:"+ptype+"\nPolicy Amount: "+amount );
-				//Exiting the system.
+				//Exiting the display state.
 				System.exit(0);
 				
 			}
-			//If detials are wrong.
 			System.out.println("Wrong credentilas....");
 			
 			//Clean-up environment.
 			con.close();
 			pst.close();
 		}
-		//Catch for handeling the exception.
 		catch(Exception e)
 		{
 			//Handling exception occured.
@@ -144,12 +142,12 @@ public class Lic {
 		}
 		
 	}
-	//Delete method.
+	//Method for Deleting the details.
 	public static int Delete()
 	{
-		//adding Policynumber number to delete.
+		//Adding policynumber to delete the data by using Policynumber.
 		int rowDelete=0,Policynumber;
-		//Handeling the exception.
+		//Exception handler.
 		try {
 			Class.forName(Driver);
 			con=DriverManager.getConnection(Url,USER,PASS);
@@ -165,55 +163,58 @@ public class Lic {
 			//deleting the value by Policynumber.
 			pst.setInt(1, Policynumber);
 			rowDelete=pst.executeUpdate();
-			//Checking on codition.. if true "IF" execute.
+			//Checking condition for deletion is done or not.
 			if(rowDelete>0)
 			{
 				System.out.println("Data is deleted successfully....");
 			}
 			else
 			{
-				System.out.println("Not deleted data successfully....");
+				System.out.println("Enterd policynumber is not Exist..Failed to delete!!!!....");
 			}
 			
 		}
-		//Handeling the exceptiion.
+		//Handling the Exception by catch clause.  
 		catch(Exception e)
 		{
 			System.out.println(e);
 		}
 		return rowDelete;
 	}
-	//Method for Update.
+	//method for updating the data.
 	public static void Update()
 	{
-		//update using by Policynumber.
-		int Policynumber,rowDelete=0;
-		//Updating the preimium amount.
+		//update using by Policynumber,Premiumamount.
+		int Policynumber,rowupdate=0;
 		float Premiumamount;
-		//Handeling the try/catch clause.
 		try {
 			Class.forName(Driver);
 			//Establishing the connection.
 			con=DriverManager.getConnection(Url,USER,PASS);
-			//Retriving data by Policynumber.
+			//Updating the details.
 			System.out.println("Enter the policy number you want to update");
 			Policynumber=scan.nextInt();
 			System.out.println("Re-enter the premium amount ");
 			Premiumamount=scan.nextFloat();
-			String sql="update LIC set Premiumamount=200 where Policynumber=1";
+			String sql="update LIC set Premiumamount=? where Policynumber=?";
+			
 			PreparedStatement pst=con.prepareStatement(sql);
-			rowDelete=pst.executeUpdate();
-			//condition statement.
-			if(rowDelete>0)
+			
+			pst.setFloat(1,Premiumamount);
+			pst.setInt(2, Policynumber);
+			
+		
+			rowupdate=pst.executeUpdate();
+			//Condition to check the data is updated or not.
+			if(rowupdate>0)
 			{
 				System.out.println("Details are updated successfully!!!!!");
 			}
-			else
+			else	
 			{
 				System.out.println("Details are failed to update....");
 			}
 		}
-		//Handeling error by catch clause.
 		catch(Exception e)
 		{
 			System.out.println(e);
